@@ -3,6 +3,7 @@ from tkinter import filedialog
 from pytube import Playlist
 from PIL import Image
 from moviepy.editor import VideoFileClip
+import os
 
 
 class Converter:
@@ -17,18 +18,21 @@ class Converter:
         video_clip.close()
         audio_clip.close()
 
+    def remove_video_file(self):
+        os.remove(self.video_file)
+
 
 class Downloader:
-    def download_playlist(self):
+    def yt_download_playlist(self):
         yt_playlist = Playlist(str(self.link.get()))
         counter = 1
         if bool(self.is_audio_only.get()):
             for video in yt_playlist.videos:
                 file_name = self.prepare_name_for_audio_playlist(counter, video.title)
                 video.streams.get_audio_only().download(output_path=str(self.download_path.get()), filename=file_name)
-                print("Downloaded: ", file_name)
+                print("Downloaded: ", file_name)  # TODO: zamienić to na info na okienku
                 counter = counter + 1
-            print("\nAll tracks have been downloaded.")
+            print("\nAll tracks have been downloaded.")  # TODO: zamienić to na info na okienku
         else:
             for video in yt_playlist.videos:
                 file_name = self.prepare_name_for_video_playlist(counter, video.title)
@@ -37,6 +41,15 @@ class Downloader:
                 print("Downloaded: ", file_name)
                 counter = counter + 1
             print("\nAll videos have been downloaded.")
+
+    def yt_download_single(self):
+        pass
+
+    def yt_download(self):
+        if bool(self.is_a_playlist.get()):
+            self.yt_download_playlist()
+        else:
+            self.yt_download_single()
 
     @staticmethod
     def prepare_name_for_video_playlist(counter, name):
@@ -91,12 +104,12 @@ class Downloader:
                                            text="Quantity od files",
                                            font=("Arial", 32, "bold"))
         self.quantity_label.grid(row=6, columnspan=7)
-        self.quantity_switch = ctk.IntVar()
-        self.quantity_switch.set(0)
+        self.is_a_playlist = ctk.IntVar()
+        self.is_a_playlist.set(0)
         self.quantity_radiobutton_1 = ctk.CTkRadioButton(window, height=40, text="SINGLE", text_color="black",
-                                                         variable=self.quantity_switch, value=0)
+                                                         variable=self.is_a_playlist, value=0)
         self.quantity_radiobutton_2 = ctk.CTkRadioButton(window, height=40, text="PLAYLIST", text_color="black",
-                                                         variable=self.quantity_switch, value=1)
+                                                         variable=self.is_a_playlist, value=1)
         self.quantity_radiobutton_1.grid(row=7, columnspan=7)
         self.quantity_radiobutton_2.grid(row=8, columnspan=7)
         # TODO: DOWNLOAD PATH
@@ -121,7 +134,7 @@ class Downloader:
         self.space_label_1 = ctk.CTkLabel(window, height=30, text_color="black", text="")
         self.space_label_1.grid(row=13, columnspan=7)
         self.download_button = ctk.CTkButton(window, height=60, width=180, text="DOWNLOAD", text_color="black",
-                                             font=("Arial", 20, "bold"), command=self.download_playlist)
+                                             font=("Arial", 20, "bold"), command=self.yt_download)
         self.download_button.grid(row=14, columnspan=7)
         self.space_label_2 = ctk.CTkLabel(window, height=30, text_color="black", text="")
         self.space_label_2.grid(row=15, columnspan=7)
