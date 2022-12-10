@@ -6,7 +6,7 @@ from PIL import Image
 from moviepy.editor import VideoFileClip
 import os
 import abc
-import bandcamp_dl
+import subprocess
 
 
 class Converter:
@@ -68,7 +68,8 @@ class DownloadBC(Download):
         self.path = path
 
     def download_single(self):
-        pass
+        print("TEST")
+        subprocess.run(["bandcamp-dl", f"{self.link}", f"--base-dir={self.path}"])
 
     def download_multiple(self):
         pass
@@ -91,11 +92,11 @@ class GUIInterface:
             download_yt.download_single()
 
         elif self.platform_var.get() == "BC" and bool(self.is_a_playlist.get()):
-            download_bc = DownloadBC()
+            download_bc = DownloadBC(link, path)
             download_bc.download_multiple()
 
-        elif self.platform_var.get() == "YT" and not bool(self.is_a_playlist.get()):
-            download_bc = DownloadBC()
+        elif self.platform_var.get() == "BC" and not bool(self.is_a_playlist.get()):
+            download_bc = DownloadBC(link, path)
             download_bc.download_single()
 
     @staticmethod
