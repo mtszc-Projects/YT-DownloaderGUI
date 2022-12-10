@@ -21,9 +21,9 @@ class Downloader:
         return "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
 
     @staticmethod
-    def file_system_explorer():
-        wnd.filename = filedialog.askopenfilename(initialdir="/", title="Select A File",
-                                                  filetypes=(("jpg files", "*.jpg"), ("all files", "*.*")))
+    def file_system_explorer(event, download_path):
+        wnd.directory = filedialog.askdirectory(initialdir="/", title="Select a directory")
+        download_path.set(wnd.directory)
 
     def __init__(self, window):
         window.title("YT Downloader")
@@ -80,7 +80,9 @@ class Downloader:
         self.download_path = ctk.StringVar(window, value="")
         self.download_path_entry = ctk.CTkEntry(window, width=550, textvariable=self.download_path)
         self.download_path_entry.grid(row=10, columnspan=7)
-        self.browse_button = ctk.CTkButton(window, text="Browse...", command=self.file_system_explorer)
+        self.browse_button = ctk.CTkButton(window, text="Browse...")
+        self.browse_button.bind("<Button-1>",
+                                lambda event, arg=self.download_path: self.file_system_explorer(event, arg))
         self.browse_button.grid(row=10, column=5, columnspan=7)
         # TODO: LINK ENTRY
         self.link_label = ctk.CTkLabel(window, height=60, text_color="black", text="Source link",
