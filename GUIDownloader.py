@@ -1,10 +1,12 @@
 import customtkinter as ctk
 from tkinter import filedialog
-from pytube import Playlist
+from tkinter.ttk import Progressbar
+from pytube import Playlist, YouTube
 from PIL import Image
 from moviepy.editor import VideoFileClip
 import os
 import abc
+import bandcamp_dl
 
 
 class Converter:
@@ -32,73 +34,69 @@ class Download(abc.ABC):
     def download_multiple(self):
         pass
 
+    @abc.abstractmethod
+    def prepare_file_name(self, counter, name):
+        pass
+
 
 class DownloadYT(Download):
+    def __init__(self, link, path):
+        self.link = link
+        self.path = path
+
     def download_single(self):
-        pass
+        YouTube(self.link).streams.get_highest_resolution().download(output_path=self.path)
+        print("File downloaded.")  # TODO: zamienić to na info na okienku
 
     def download_multiple(self):
-        pass
+        yt_playlist = Playlist(self.link)
+        counter = 1
+        for video in yt_playlist.videos:
+            file_name = self.prepare_file_name(counter, video.title)
+            video.streams.get_highest_resolution().download(output_path=self.path, filename=file_name)
+            print("Downloaded: ", file_name)  # TODO: zamienić to na info na okienku
+            counter = counter + 1
+        print("\nAll videos have been downloaded.")  # TODO: zamienić to na info na okienku
+
+    def prepare_file_name(self, counter, name):
+        return "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
 
 
 class DownloadBC(Download):
+    def __init__(self, link, path):
+        self.link = link
+        self.path = path
+
     def download_single(self):
         pass
 
     def download_multiple(self):
+        pass
+
+    def prepare_file_name(self, counter, name):
         pass
 
 
 class GUIInterface:
-    def yt_download_playlist(self):
-        yt_playlist = Playlist(str(self.link.get()))
-        counter = 1
-        if bool(self.is_audio_only.get()):
-            for tracks in yt_playlist.videos:
-                file_name = self.prepare_name_for_audio_playlist(counter, tracks.title)
-                tracks.streams.get_audio_only().download(output_path=str(self.download_path.get()), filename=file_name)
-                print("Downloaded: ", file_name)  # TODO: zamienić to na info na okienku
-                counter = counter + 1
-            print("\nAll tracks have been downloaded.")  # TODO: zamienić to na info na okienku
-        else:
-            for video in yt_playlist.videos:
-                file_name = self.prepare_name_for_video_playlist(counter, video.title)
-                video.streams.get_highest_resolution().download(output_path=str(self.download_path.get()),
-                                                                filename=file_name)
-                print("Downloaded: ", file_name)  # TODO: zamienić to na info na okienku
-                counter = counter + 1
-            print("\nAll videos have been downloaded.")  # TODO: zamienić to na info na okienku
-
-    def yt_download_single(self):
-        pass
-
-    def yt_download(self):
-        if bool(self.is_a_playlist.get()):
-            self.yt_download_playlist()
-        else:
-            self.yt_download_single()
-
     def download(self):
         link = str(self.link.get())
-        if self.platform_var.get() == "YT" and self.is_a_playlist:
-            download_yt = DownloadYT()
+        path = str(self.download_path.get())
 
-        elif self.platform_var.get() == "YT" and not self.is_a_playlist:
-            download_yt = DownloadYT()
+        if self.platform_var.get() == "YT" and bool(self.is_a_playlist.get()):
+            download_yt = DownloadYT(link, path)
+            download_yt.download_multiple()
 
-        elif self.platform_var.get() == "BC" and self.is_a_playlist:
+        elif self.platform_var.get() == "YT" and not bool(self.is_a_playlist.get()):
+            download_yt = DownloadYT(link, path)
+            download_yt.download_single()
+
+        elif self.platform_var.get() == "BC" and bool(self.is_a_playlist.get()):
             download_bc = DownloadBC()
+            download_bc.download_multiple()
 
-        elif self.platform_var.get() == "YT" and not self.is_a_playlist:
+        elif self.platform_var.get() == "YT" and not bool(self.is_a_playlist.get()):
             download_bc = DownloadBC()
-
-    @staticmethod
-    def prepare_name_for_video_playlist(counter, name):
-        return "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
-
-    @staticmethod
-    def prepare_name_for_audio_playlist(counter, name):
-        return "0" + str(counter) + " " + name + ".mp3" if counter < 10 else str(counter) + " " + name + ".mp3"
+            download_bc.download_single()
 
     @staticmethod
     def file_system_explorer(event, download_path):
@@ -194,11 +192,15 @@ class GUIInterface:
         # TODO: DOWNLOAD BUTTON
         self.space_label_1 = ctk.CTkLabel(window, height=30, text_color="black", text="")
         self.space_label_1.grid(row=13, columnspan=7)
-        self.download_button = ctk.CTkButton(window, height=60, width=180, text="DOWNLOAD", text_color="black",
-                                             font=("Arial", 20, "bold"), command=self.yt_download)
-        self.download_button.grid(row=14, columnspan=7)
+        # self.bar = Progressbar(length=500)
+        # self.bar.grid(row=14, columnspan=7)
         self.space_label_2 = ctk.CTkLabel(window, height=30, text_color="black", text="")
         self.space_label_2.grid(row=15, columnspan=7)
+        self.download_button = ctk.CTkButton(window, height=60, width=180, text="DOWNLOAD", text_color="black",
+                                             font=("Arial", 20, "bold"), command=self.download)
+        self.download_button.grid(row=16, columnspan=7)
+        self.space_label_3 = ctk.CTkLabel(window, height=30, text_color="black", text="")
+        self.space_label_3.grid(row=17, columnspan=7)
 
 
 wnd = ctk.CTk()
