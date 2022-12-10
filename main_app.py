@@ -1,7 +1,7 @@
 import customtkinter as ctk
-import tkinter as tk
+from tkinter import filedialog
 from pytube import Playlist
-from PIL import Image, ImageTk
+from PIL import Image
 
 
 class Downloader:
@@ -20,6 +20,11 @@ class Downloader:
     def prepare_name_for_playlist(counter, name):
         return "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
 
+    @staticmethod
+    def file_system_explorer():
+        wnd.filename = filedialog.askopenfilename(initialdir="/", title="Select A File",
+                                                  filetypes=(("jpg files", "*.jpg"), ("all files", "*.*")))
+
     def __init__(self, window):
         window.title("YT Downloader")
         window.resizable(width=False, height=False)
@@ -27,12 +32,7 @@ class Downloader:
                                      text="Source platform",
                                      font=("Arial", 32, "bold"))
         self.my_label.grid(row=1, columnspan=7)
-        # TODO: Canvas solution
-        # self.yt_canvas = ctk.CTkCanvas(window, width=256, height=256, background="#202020")
-        # self.resized_yt_image = ImageTk.PhotoImage(Image.open("./logos/youtube.png").resize((256, 256)))
-        # self.yt_canvas.create_image(128, 128, image=self.resized_yt_image)
-        # self.yt_canvas.grid(row=2)
-        # TODO: Button solution
+        # TODO: PLATFORM CHOICE
         # YT BUTTON
         self.resized_yt_image = ctk.CTkImage(light_image=Image.open("./logos/youtube.png").resize((192, 192)),
                                              dark_image=Image.open("./logos/youtube.png").resize((192, 192)),
@@ -80,7 +80,7 @@ class Downloader:
         self.download_path = ctk.StringVar(window, value="")
         self.download_path_entry = ctk.CTkEntry(window, width=550, textvariable=self.download_path)
         self.download_path_entry.grid(row=10, columnspan=7)
-        self.browse_button = ctk.CTkButton(window, text="Browse...")
+        self.browse_button = ctk.CTkButton(window, text="Browse...", command=self.file_system_explorer)
         self.browse_button.grid(row=10, column=5, columnspan=7)
         # TODO: LINK ENTRY
         self.link_label = ctk.CTkLabel(window, height=60, text_color="black", text="Source link",
