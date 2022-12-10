@@ -6,6 +6,7 @@ from moviepy.editor import VideoFileClip
 import os
 import abc
 
+
 class Converter:
     def __init__(self, video_file, audio_file):
         self.video_file = video_file
@@ -77,10 +78,19 @@ class GUIInterface:
         else:
             self.yt_download_single()
 
-    def bc_download_playlist(self):
-        pass
+    def download(self):
+        link = str(self.link.get())
+        if self.platform_var.get() == "YT" and self.is_a_playlist:
+            download_yt = DownloadYT()
 
-    def bc
+        elif self.platform_var.get() == "YT" and not self.is_a_playlist:
+            download_yt = DownloadYT()
+
+        elif self.platform_var.get() == "BC" and self.is_a_playlist:
+            download_bc = DownloadBC()
+
+        elif self.platform_var.get() == "YT" and not self.is_a_playlist:
+            download_bc = DownloadBC()
 
     @staticmethod
     def prepare_name_for_video_playlist(counter, name):
@@ -95,27 +105,47 @@ class GUIInterface:
         wnd.directory = filedialog.askdirectory(initialdir="/", title="Select a directory")
         download_path.set(wnd.directory)
 
+    def choose_platform_yt(self):
+        if str(self.platform_var.get()) != 'YT':
+            self.bc_button.configure(fg_color="#242424")
+            self.platform_var.set("YT")
+            self.yt_button.configure(fg_color="#FF0000")
+        else:
+            self.platform_var.set("")
+            self.yt_button.configure(fg_color="#242424")
+
+    def choose_platform_bc(self):
+        if str(self.platform_var.get()) != 'BC':
+            self.yt_button.configure(fg_color="#242424")
+            self.platform_var.set("BC")
+            self.bc_button.configure(fg_color="#629aa9")
+        else:
+            self.platform_var.set("")
+            self.bc_button.configure(fg_color="#242424")
+
     def __init__(self, window):
         window.title("YT Downloader")
         window.resizable(width=False, height=False)
-        self.my_label = ctk.CTkLabel(window, height=60, text_color="black",
-                                     text="Source platform",
+        # TODO: PLATFORM CHOICE
+        self.my_label = ctk.CTkLabel(window, height=60, text_color="black", text="Source platform",
                                      font=("Arial", 32, "bold"))
         self.my_label.grid(row=1, columnspan=7)
-        # TODO: PLATFORM CHOICE
+        self.platform_var = ctk.StringVar(window, value="")
         # YT BUTTON
         self.resized_yt_image = ctk.CTkImage(light_image=Image.open("./logos/youtube.png").resize((192, 192)),
                                              dark_image=Image.open("./logos/youtube.png").resize((192, 192)),
                                              size=(192, 192))
         self.yt_button = ctk.CTkButton(window, image=self.resized_yt_image, height=192, width=192, text="",
-                                       fg_color="#242424", bg_color="#242424", hover_color="#FF0000")
+                                       fg_color="#242424", bg_color="#242424", hover_color="#FF0000",
+                                       command=self.choose_platform_yt)
         self.yt_button.grid(row=2, column=1, columnspan=2)
         # BC BUTTON
         self.resized_bc_image = ctk.CTkImage(light_image=Image.open("./logos/bandcamp.png").resize((192, 192)),
                                              dark_image=Image.open("./logos/bandcamp.png").resize((192, 192)),
                                              size=(192, 192))
         self.bc_button = ctk.CTkButton(window, image=self.resized_bc_image, height=192, width=192, text="",
-                                       fg_color="#242424", bg_color="#242424", hover_color="#629aa9")
+                                       fg_color="#242424", bg_color="#242424", hover_color="#629aa9",
+                                       command=self.choose_platform_bc)
         self.bc_button.grid(row=2, column=4, columnspan=2)
         # TODO: FORMAT CHOICE
         self.format_label = ctk.CTkLabel(window, height=60, text_color="black",
