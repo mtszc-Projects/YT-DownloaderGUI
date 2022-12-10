@@ -4,7 +4,7 @@ from pytube import Playlist
 from PIL import Image
 from moviepy.editor import VideoFileClip
 import os
-
+import abc
 
 class Converter:
     def __init__(self, video_file, audio_file):
@@ -22,25 +22,51 @@ class Converter:
         os.remove(self.video_file)
 
 
-class Downloader:
+class Download(abc.ABC):
+    @abc.abstractmethod
+    def download_single(self):
+        pass
+
+    @abc.abstractmethod
+    def download_multiple(self):
+        pass
+
+
+class DownloadYT(Download):
+    def download_single(self):
+        pass
+
+    def download_multiple(self):
+        pass
+
+
+class DownloadBC(Download):
+    def download_single(self):
+        pass
+
+    def download_multiple(self):
+        pass
+
+
+class GUIInterface:
     def yt_download_playlist(self):
         yt_playlist = Playlist(str(self.link.get()))
         counter = 1
         if bool(self.is_audio_only.get()):
-            for video in yt_playlist.videos:
-                file_name = self.prepare_name_for_audio_playlist(counter, video.title)
-                video.streams.get_audio_only().download(output_path=str(self.download_path.get()), filename=file_name)
+            for tracks in yt_playlist.videos:
+                file_name = self.prepare_name_for_audio_playlist(counter, tracks.title)
+                tracks.streams.get_audio_only().download(output_path=str(self.download_path.get()), filename=file_name)
                 print("Downloaded: ", file_name)  # TODO: zamienić to na info na okienku
                 counter = counter + 1
             print("\nAll tracks have been downloaded.")  # TODO: zamienić to na info na okienku
         else:
             for video in yt_playlist.videos:
                 file_name = self.prepare_name_for_video_playlist(counter, video.title)
-                video.streams.get_highest_resolution().download(
-                    output_path=str(self.download_path.get()), filename=file_name)
-                print("Downloaded: ", file_name)
+                video.streams.get_highest_resolution().download(output_path=str(self.download_path.get()),
+                                                                filename=file_name)
+                print("Downloaded: ", file_name)  # TODO: zamienić to na info na okienku
                 counter = counter + 1
-            print("\nAll videos have been downloaded.")
+            print("\nAll videos have been downloaded.")  # TODO: zamienić to na info na okienku
 
     def yt_download_single(self):
         pass
@@ -50,6 +76,11 @@ class Downloader:
             self.yt_download_playlist()
         else:
             self.yt_download_single()
+
+    def bc_download_playlist(self):
+        pass
+
+    def bc
 
     @staticmethod
     def prepare_name_for_video_playlist(counter, name):
@@ -141,5 +172,5 @@ class Downloader:
 
 
 wnd = ctk.CTk()
-downloader = Downloader(wnd)
+downloader = GUIInterface(wnd)
 wnd.mainloop()
