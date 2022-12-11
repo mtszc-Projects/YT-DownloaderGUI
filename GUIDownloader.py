@@ -79,6 +79,21 @@ class DownloadBC(Download):
 
 
 class GUIInterface:
+    def converter(self):
+        path = str(self.download_path.get())
+        if bool(self.is_audio_only.get()):
+            for video_file in os.listdir(path):
+                video_file = path + '/' + video_file
+                print(video_file)
+                audio_file = video_file.split('.')
+                audio_file = audio_file[0] + '.mp3'
+                print(audio_file)
+                converter = Converter(video_file, audio_file)
+                converter.convert_mp4_to_mp3()
+                converter.remove_video_file()
+        else:
+            pass
+
     def download(self):
         link = str(self.link.get())
         path = str(self.download_path.get())
@@ -86,10 +101,12 @@ class GUIInterface:
         if self.platform_var.get() == "YT" and bool(self.is_a_playlist.get()):
             download_yt = DownloadYT(link, path)
             download_yt.download_multiple()
+            self.converter()
 
         elif self.platform_var.get() == "YT" and not bool(self.is_a_playlist.get()):
             download_yt = DownloadYT(link, path)
             download_yt.download_single()
+            self.converter()
 
         elif self.platform_var.get() == "BC" and bool(self.is_a_playlist.get()):
             download_bc = DownloadBC(link, path)
