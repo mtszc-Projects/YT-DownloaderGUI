@@ -17,7 +17,7 @@ class Converter:
     def convert_mp4_to_mp3(self):
         video_clip = VideoFileClip(self.video_file)
         audio_clip = video_clip.audio
-        audio_clip.write_audiofile(self.audio_file)
+        audio_clip.write_audiofile(self.audio_file, bitrate='320k')
         video_clip.close()
         audio_clip.close()
 
@@ -46,7 +46,7 @@ class DownloadYT(Download):
 
     def download_single(self):
         YouTube(self.link).streams.get_highest_resolution().download(output_path=self.path)
-        print("File downloaded.")  # TODO: zamienić to na info na okienku
+        print("File downloaded.")  # TODO: change to gui info
 
     def download_multiple(self):
         yt_playlist = Playlist(self.link)
@@ -54,9 +54,9 @@ class DownloadYT(Download):
         for video in yt_playlist.videos:
             file_name = self.prepare_file_name(counter, video.title)
             video.streams.get_highest_resolution().download(output_path=self.path, filename=file_name)
-            print("Downloaded: ", file_name)  # TODO: zamienić to na info na okienku
+            print("Downloaded: ", file_name)  # TODO: change to gui info
             counter = counter + 1
-        print("\nAll videos have been downloaded.")  # TODO: zamienić to na info na okienku
+        print("\nAll videos have been downloaded.")  # TODO: change to gui info
 
     def prepare_file_name(self, counter, name):
         return "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
@@ -68,11 +68,12 @@ class DownloadBC(Download):
         self.path = path
 
     def download_single(self):
-        print("TEST")
-        subprocess.run(["bandcamp-dl", f"{self.link}", f"--base-dir={self.path}"])
+        subprocess.run(["bandcamp-dl", f"{self.link}", f"--base-dir={self.path}",
+                        "--template=%{track} %{title}"])
 
     def download_multiple(self):
-        pass
+        subprocess.run(["bandcamp-dl", f"{self.link}", f"--base-dir={self.path}",
+                        "--template=[%{date}] %{album} - %{artist}/%{track} %{title}"])
 
     def prepare_file_name(self, counter, name):
         pass
