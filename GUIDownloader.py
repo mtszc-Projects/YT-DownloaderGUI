@@ -59,7 +59,9 @@ class DownloadYT(Download):
         print("\nAll videos have been downloaded.")  # TODO: change to gui info
 
     def prepare_file_name(self, counter, name):
-        return "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
+        file_name = "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
+        file_name = '|'.join(file_name.split('/'))
+        return file_name
 
 
 class DownloadBC(Download):
