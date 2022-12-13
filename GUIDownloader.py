@@ -60,7 +60,7 @@ class DownloadYT(Download):
 
     def prepare_file_name(self, counter, name):
         file_name = "0" + str(counter) + " " + name + ".mp4" if counter < 10 else str(counter) + " " + name + ".mp4"
-        file_name = '|'.join(file_name.split('/'))
+        file_name = file_name.replace("/", "|")
         return file_name
 
 
