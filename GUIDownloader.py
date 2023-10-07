@@ -4,6 +4,7 @@ from tkinter.ttk import Progressbar
 from pytube import Playlist, YouTube
 from PIL import Image
 from moviepy.editor import VideoFileClip
+from time import sleep
 import os
 import abc
 import subprocess
@@ -52,7 +53,10 @@ class DownloadYT(Download):
         yt_playlist = Playlist(self.link)
         counter = 1
         for video in yt_playlist.videos:
-            file_name = self.prepare_file_name(counter, video.title)
+            try:
+                file_name = self.prepare_file_name(counter, video.title)
+            except:
+                file_name = self.prepare_file_name(counter, 'PytubeError - Exception while accessing title')
             video.streams.get_highest_resolution().download(output_path=self.path, filename=file_name)
             print("Downloaded: ", file_name)  # TODO: change to gui info
             counter = counter + 1
@@ -88,7 +92,7 @@ class GUIInterface:
             for video_file in os.listdir(path):
                 video_file = path + '/' + video_file
                 print(video_file)
-                audio_file = video_file.split('.')
+                audio_file = video_file.rsplit('.', 1)
                 audio_file = audio_file[0] + '.mp3'
                 print(audio_file)
                 converter = Converter(video_file, audio_file)
