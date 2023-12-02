@@ -74,11 +74,11 @@ class DownloadBC(Download):
         self.path = path
 
     def download_single(self):
-        subprocess.run(["bandcamp-dl", f"{self.link}", f"--base-dir={self.path}",
+        subprocess.run(["./venv/bin/bandcamp-dl", f"{self.link}", f"--base-dir={self.path}",
                         "--template=%{track} %{title}"])
 
     def download_multiple(self):
-        subprocess.run(["bandcamp-dl", f"{self.link}", f"--base-dir={self.path}",
+        subprocess.run(["./venv/bin/bandcamp-dl", f"{self.link}", f"--base-dir={self.path}",
                         "--template=[%{date}] %{album} - %{artist}/%{track} %{title}"])
 
     def prepare_file_name(self, counter, name):
